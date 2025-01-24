@@ -1,0 +1,15 @@
+{
+    "name": "jackwhisler1/workopia",
+    "description": "Vanilla PHP job listing application",
+    "authors": [
+        {
+            "name": "Jack Whisler"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Framework\\": "Framework/",
+            "App\\": "App/"
+        }
+    }
+}
