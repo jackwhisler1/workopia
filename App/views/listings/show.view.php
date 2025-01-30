@@ -20,7 +20,7 @@
         <div class="p-4">
             <h2 class="text-xl font-semibold"><?= $listing->title ?></h2>
             <p class="text-gray-700 text-lg mt-2">
-            <?= $listing->description ?>
+                <?= $listing->description ?>
             </p>
             <ul class="my-4 bg-gray-100 p-4">
                 <li class="mb-2"><strong>Salary:</strong> <?= formatSalary($listing->salary) ?></li>
@@ -29,9 +29,11 @@
                     <span
                         class="text-xs bg-blue-500 text-white rounded-full px-2 py-1 ml-2">Local</span>
                 </li>
-                <li class="mb-2">
-                    <strong>Tags:</strong> <span><?= $listing->tags ?></span>,
-                </li>
+                <?php if (!empty($listing->tags)) : ?>
+                    <li class="mb-2">
+                        <strong>Tags:</strong> <span><?= $listing->tags ?></span>
+                    </li>
+                <?php endif ?>
             </ul>
         </div>
     </div>
@@ -44,7 +46,7 @@
             Job Requirements
         </h3>
         <p>
-        <?= $listing->requirements ?>
+            <?= $listing->requirements ?>
         </p>
         <h3 class="text-lg font-semibold mt-4 mb-2 text-blue-500">Benefits</h3>
         <p><?= $listing->benefits ?></p>
