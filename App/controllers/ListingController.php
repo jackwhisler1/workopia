@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use Framework\Database;
+use Framework\Validation;
 
 
 class ListingController
@@ -60,5 +61,35 @@ class ListingController
         }
 
         loadView('listings/show', ['listing' => $listing]);
+    }
+
+    /**
+     * Store data in database
+     * 
+     * @return void
+     */
+    public function store()
+    {
+        $allowedFields = [
+            'title',
+            'description',
+            'salary',
+            'tags',
+            'company',
+            'address',
+            'city',
+            'state',
+            'phone',
+            'email',
+            'requirements',
+            'benefits'
+        ];
+
+        $newListingData['user_id'] = 1;
+
+        $newListingData = array_intersect_key($_POST, array_flip($allowedFields));
+
+        $newListingData = array_map('sanitize', $newListingData);
+        inspectAndDie($newListingData);
     }
 }
