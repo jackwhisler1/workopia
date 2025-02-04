@@ -4,6 +4,8 @@ namespace App\Controllers;
 
 use Framework\Database;
 use Framework\Validation;
+use Framework\Session;
+use Framework\Authorization;
 
 
 class ListingController
@@ -23,7 +25,7 @@ class ListingController
      */
     public function index()
     {
-        $listings = $this->db->query('SELECT * FROM listings')->fetchAll();
+        $listings = $this->db->query('SELECT * FROM listings ORDER BY created_at DESC')->fetchAll();
 
         loadView('listings/index', [
             'listings' => $listings
@@ -92,7 +94,8 @@ class ListingController
         $newListingData = array_map('sanitize', $newListingData);
 
         $requiredFields = ['title', 'description', 'email', 'city', 'state', 'salary'];
-        $newListingData['user_id'] = 1;
+
+        $newListingData['user_id'] = Session::get('user')['id'];
 
         $errors = [];
 
@@ -150,9 +153,16 @@ class ListingController
 
         $listing = $this->db->query('SELECT * FROM listings WHERE id = :id', $params)->fetch();
 
+        // Check if listing exists
         if (!$listing) {
             ErrorController::notFound('Listing not found');
             return;
+        }
+
+        // Authorization
+        if (!Authorization::isOwner($listing->user_id)) {
+            $_SESSION['error_message'] = 'You are not authorized to delete this listing';
+            return redirect('/listings/' . $listing->id);
         }
 
         $this->db->query('DELETE FROM listings WHERE id = :id', $params);
@@ -163,7 +173,7 @@ class ListingController
         redirect('/listings');
     }
 
-      /**
+    /**
      * Show the listing edit form
      * 
      * @param array $params
@@ -233,20 +243,20 @@ class ListingController
 
         $errors = [];
 
-        foreach($requiredFields as $field){
-            if(empty($updateValues[$field] || Validation::string($updateValues[$field]))){
+        foreach ($requiredFields as $field) {
+            if (empty($updateValues[$field] || Validation::string($updateValues[$field]))) {
                 $errors[$field] = ucfirst($field) . ' is required';
             }
         }
 
-        if(!empty($errors)){
+        if (!empty($errors)) {
             loadView('listings/edit', ['listing' => $listing, 'errors' => $errors]);
             exit;
-        }else{
+        } else {
             // Submit to database
             $updateFields = [];
 
-            foreach(array_keys($updateValues) as $field){
+            foreach (array_keys($updateValues) as $field) {
                 $updateFields[] = "$field = :$field";
             }
 
@@ -261,6 +271,5 @@ class ListingController
             redirect('/listings/' . $id);
             inspectAndDie($updateQuery);
         }
-
     }
 }
